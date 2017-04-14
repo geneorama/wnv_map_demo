@@ -10,6 +10,7 @@
 rm(list=ls())
 
 library("geneorama")
+geneorama::set_project_dir("wnv_map_demo")
 sourceDir("functions")
 loadinstall_libraries(c("leaflet", "data.table", "sp", "rgdal", "KernSmooth",
                         "maptools", "knitr", "shiny"))
