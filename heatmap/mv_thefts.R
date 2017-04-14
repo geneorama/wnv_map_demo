@@ -79,7 +79,7 @@ loadinstall_libraries(c("leaflet", "data.table", "sp", "rgdal", "KernSmooth", "R
 # library("maptools")
 
 inurl <- "http://data.cityofchicago.org/api/views/22s8-eq8h/rows.csv?accessType=DOWNLOAD"
-infile <- "booma_example/mvthefts.Rds"
+infile <- "heatmap/mvthefts.Rds"
 
 ##==============================================================================
 ## LOAD DATA
@@ -105,7 +105,8 @@ dat <- readRDS(infile)
 ## MAKE CONTOUR LINES
 ## Note, bandwidth choice is based on MASS::bandwidth.nrd()
 kde <- bkde2D(dat[ , list(longitude, latitude)],
-              bandwidth=c(.0045, .0068), gridsize = c(100,100))
+              bandwidth=c(.0045, .0068),
+              gridsize = c(100,100))
 CL <- contourLines(kde$x1 , kde$x2 , kde$fhat)
 
 ## EXTRACT CONTOUR LINE LEVELS

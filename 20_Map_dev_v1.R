@@ -81,8 +81,10 @@ counts
 ##==============================================================================
 
 m <- leaflet() %>%
-    addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL * 5, fill="blue", col="blue", weight=1, data=counts) %>%
-    addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL_POS * 5, fill="red", col="red", weight=1, data=counts)
+    addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL * 5,
+               fill="blue", col="blue", weight=1, data=counts) %>%
+    addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL_POS * 5,
+               fill="red", col="red", weight=1, data=counts)
 mb_attribution <- paste("© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> ",
                         "© <a href='http://www.openstreetmap.org/about/'>OpenStreetMap</a>")
 

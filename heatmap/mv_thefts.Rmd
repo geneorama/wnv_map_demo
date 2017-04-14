@@ -77,7 +77,7 @@ loadinstall_libraries(c("leaflet", "data.table", "sp", "rgdal", "KernSmooth", "R
 # library("maptools")
 
 inurl <- "http://data.cityofchicago.org/api/views/22s8-eq8h/rows.csv?accessType=DOWNLOAD"
-infile <- "booma_example/mvthefts.Rds"
+infile <- "heatmap/mvthefts.Rds"
 
 ## LOAD DATA
 ## Also, clean up variable names, and convert dates
