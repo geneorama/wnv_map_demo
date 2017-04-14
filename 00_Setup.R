@@ -19,9 +19,11 @@ if(!"Rcpp" %in% rownames(installed.packages())){
                      repos = "http://cran.rstudio.com/")
 }
 
+if(!"geneorama" %in% rownames(installed.packages())){
+    devtools::install_github('geneorama/geneorama')
+}
 
-if(!"geneorama" %in% rownames(installed.packages()) |
-   installed.packages()["geneorama","Version"] < "1.5.0"){
+if(installed.packages()["geneorama","Version"] < "1.5.0"){
     devtools::install_github('geneorama/geneorama')
 }
 
