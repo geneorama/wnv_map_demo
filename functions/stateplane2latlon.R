@@ -1,6 +1,10 @@
 
 
 stateplane2latlon <- function(X, Y, metric=TRUE){
+
+    require(data.table)
+    require(sp)
+
     # latlon <- data.table(longitude = c(1148703.5804669, 1148721.69534794,
     #                                    1148718.58006945, 1148719.92031838,
     #                                    1148722.28519294),

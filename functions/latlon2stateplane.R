@@ -1,6 +1,10 @@
 
 
 latlon2stateplane <- function(latitude, longitude, metric=TRUE){
+
+    require(data.table)
+    require(sp)
+
     # xy <- data.table(X = c(-87.728428378, -87.728380101, -87.7283888,
     #                        -87.728385057, -87.728378456),
     #                  Y = c(41.988313918, 41.986375258, 41.986666744,
