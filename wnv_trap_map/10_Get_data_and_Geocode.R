@@ -21,6 +21,7 @@ sourceDir("functions/")
 ##==============================================================================
 
 ## To download a new file delete the old one: file.remove("data/wnv.csv")
+file.remove("data/wnv.csv")
 dat <- download_wnv(infile="data/wnv.csv")
 census_tracts <- download_census_tracts(infile = "data/censustracts.Rds")
 wards <- download_ward_map(infile = "data/BoundariesWards.Rds")
