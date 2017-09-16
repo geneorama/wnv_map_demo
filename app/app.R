@@ -124,11 +124,11 @@ server <- function(input, output){
         counts <- get_counts()
         if(nrow(counts)==0) {
             print("Nothing selected")
-            leafletProxy("lmap") %>% clearMarkerClusters()
+            leafletProxy("lmap") %>% clearShapes()
         }
         else{
             leafletProxy("lmap", data=counts) %>%
-                clearMarkerClusters() %>%
+                clearShapes() %>%
                 addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL*5,
                            label=~LABEL, fill="blue", col="blue", weight=1,
                            data=counts[TOTAL_POS!=TOTAL]) %>%
