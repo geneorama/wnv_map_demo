@@ -44,7 +44,7 @@ str(dfw, 2)
 ## data in the census tract that appears to be Lake Michigan.  As it turns out,
 ## Lake Michigan is very sparsely populated by humans (which are the only
 ## animals included in the US census).
-income_data <- acs.fetch(endyear = 2012,
+income_data <- acs.fetch(endyear = 2014,
                          geography = geo.make(state = "IL",
                                               county = c(31),
                                               tract = "*"),
