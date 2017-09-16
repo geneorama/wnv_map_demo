@@ -20,12 +20,36 @@ sourceDir("functions/")
 ## GET DATA
 ##==============================================================================
 
+## To download a new file delete the old one: file.remove("data/wnv.csv")
 dat <- download_wnv(infile="data/wnv.csv")
 census_tracts <- download_census_tracts(infile = "data/censustracts.Rds")
 wards <- download_ward_map(infile = "data/BoundariesWards.Rds")
 
 ## Keep only rows that are not missing location data
-dat <- dat[!is.na(latitude)]
+# dat <- dat[!is.na(latitude)]
+
+##------------------------------------------------------------------------------
+## Google geocoder
+##------------------------------------------------------------------------------
+
+## For missing locations get the block
+addresses_with_missing_coords <- dat[is.na(latitude) , unique(block)]
+## Replace X with 0
+addresses_with_missing_coords_mod <- gsub("X", "0", addresses_with_missing_coords)
+## Look up coords in Google
+coords_found <- getGoogleGeocode(addresses_with_missing_coords_mod)
+coords_found_dt <- data.table(block=addresses_with_missing_coords, coords_found)
+coords_found_dt
+
+dat <- merge(dat, coords_found_dt, "block", all.x=TRUE)
+dat[is.na(latitude), latitude := lat]
+dat[is.na(longitude), longitude := lon]
+NAsummary(dat)
+dat$lat <- NULL
+dat$lon <- NULL
+
+rm(addresses_with_missing_coords, addresses_with_missing_coords_mod,
+   coords_found, coords_found_dt)
 
 ##==============================================================================
 ## GEOCODE CENSUS BLOCKS
