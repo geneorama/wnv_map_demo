@@ -78,15 +78,25 @@ get_counts <- function(filterdate){
 # https://github.com/SimonGoring/ShinyLeaflet-tutorial/blob/master/Shiny-leaflet-tutorial.Rmd
 
 ui <- fluidPage(
-    tags$div(title = "Select a week to view",
-             selectInput(inputId = "collection_week",
-                         label = "Week of collection:",
-                         choices = POSSIBLE_DATES[year(POSSIBLE_DATES) == 2017])),
-    leafletOutput("MapPlot1", height = 800)
+    fluidRow(column(4, selectInput(inputId = "season_year",
+                                   label = "Season year:",
+                                   choices = sort(unique(year(POSSIBLE_DATES))),
+                                   selected = max(year(POSSIBLE_DATES)) )),
+             column(4, uiOutput("collectionWeekSelect") )),
+    hr(),
+    leafletOutput("MapPlot1", height = 600, width = 800)
 )
 
 #Set up server
 server <- function(input, output){
+
+    output$collectionWeekSelect <- renderUI({
+        selected_year <- input$season_year
+        selectInput(inputId = "collection_week",
+                    label = "Collection date:",
+                    choices = POSSIBLE_DATES[year(POSSIBLE_DATES) == selected_year])
+    })
+
     output$MapPlot1 <- renderLeaflet({
         leaflet() %>%
             addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution) %>%
