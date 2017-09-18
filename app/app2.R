@@ -82,7 +82,7 @@ ui <- fluidPage(
              selectInput(inputId = "collection_week",
                          label = "Week of collection:",
                          choices = POSSIBLE_DATES[year(POSSIBLE_DATES) == 2017])),
-    leafletOutput("MapPlot1")
+    leafletOutput("MapPlot1", height = 800)
 )
 
 #Set up server
