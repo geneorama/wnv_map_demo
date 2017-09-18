@@ -78,13 +78,13 @@ get_counts <- function(filterdate){
 # https://github.com/SimonGoring/ShinyLeaflet-tutorial/blob/master/Shiny-leaflet-tutorial.Rmd
 
 ui <- fluidPage(
-    tags$div(title = "This input has a tool tip",
+    tags$div(title = "Select a week to view",
              selectInput(inputId = "collection_week",
                          label = "Week of collection:",
                          choices = POSSIBLE_DATES[year(POSSIBLE_DATES) == 2017])),
     leafletOutput("MapPlot1")
 )
-# dat <- dat[season_year == 2017]
+
 #Set up server
 server <- function(input, output){
     output$MapPlot1 <- renderLeaflet({
@@ -100,16 +100,14 @@ server <- function(input, output){
 
         counts <- get_counts(collection_week)
 
-        # leafletProxy("MapPlot1") %>% clearMarkers() %>%
-        #     addCircleMarkers(lng = counts$longitude,
-        #                      lat = counts$latitude,
-        #                      # radius=~TOTAL_POS*5,
-        #                      popup = counts$LABEL)
         leafletProxy("MapPlot1") %>% clearShapes() %>%
-            addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL * 50,
+            addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution) %>%
+            addPolygons(data=wards, weight=1, fillOpacity=.05, color="black",
+                        label=paste0("WARD ", wards$ward), smoothFactor=.02) %>%
+            addCircles(lng=~longitude, lat=~latitude,  radius=~log(counts$TOTAL+1)*200,
                        fill="blue", col="blue", weight=1, data=counts,
                        popup = counts$LABEL) %>%
-            addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL_POS * 50,
+            addCircles(lng=~longitude, lat=~latitude,  radius=~log(counts$TOTAL_POS)*200,
                        fill="red", col="red", weight=1, data=counts,
                        popup = counts$LABEL)
 
@@ -118,7 +116,4 @@ server <- function(input, output){
 
 #Run app
 shinyApp(ui = ui, server = server, options = list(height = 6000))
-
-
-
 
