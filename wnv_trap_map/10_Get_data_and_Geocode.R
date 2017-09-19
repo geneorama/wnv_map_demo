@@ -79,10 +79,6 @@ sp::coordinates(dat) <- c("longitude", "latitude")
 # wards@proj4string
 wards <- spTransform(wards, CRS("+proj=longlat +datum=WGS84"))
 
-# census_blocks@proj4string
-# wards@proj4string
-wards <- spTransform(wards, CRS("+proj=longlat +datum=WGS84"))
-
 ## Match the projection attributes of data to "wards"
 dat@proj4string <- wards@proj4string
 
