@@ -55,11 +55,19 @@ dat[ , pip := NULL]
 dat[ , res := NULL]
 dat[ , oth := NULL]
 
-## Now the data has some new fields that are
-dat[ , list(.N, sum(PIPIENS), sum(RESTUANS), sum(OTHER)), list(species)]
+## Now the data has some new fields that split out the species
+dat[i = TRUE,
+    j = list(.N, pip = sum(PIPIENS), rest = sum(RESTUANS), oth = sum(OTHER)),
+    keyby = list(species)]
+
+## Look for an example with some interesting values...
+dat[i = season_year == 2017,
+    j = list(sum(number_of_mosquitoes),
+             sum(number_of_mosquitoes[result==TRUE])),
+    keyby = date]
 
 ## This is the aggregation step:
-counts <- dat[date == max(date),
+counts <- dat[date == "2017-08-17", ## <<-- set the date
               list(TOTAL = sum(number_of_mosquitoes),
                    TOTAL_POS = sum(number_of_mosquitoes[result==T]),
                    PIPIENS = sum(PIPIENS),
@@ -81,9 +89,9 @@ counts
 ##==============================================================================
 
 m <- leaflet() %>%
-    addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL * 5,
+    addCircles(lng=~longitude, lat=~latitude,  radius=~log(TOTAL + 1) * 200,
                fill="blue", col="blue", weight=1, data=counts) %>%
-    addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL_POS * 5,
+    addCircles(lng=~longitude, lat=~latitude,  radius=~log(TOTAL_POS + 1) * 200,
                fill="red", col="red", weight=1, data=counts)
 mb_attribution <- paste("© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> ",
                         "© <a href='http://www.openstreetmap.org/about/'>OpenStreetMap</a>")
