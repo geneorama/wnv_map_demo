@@ -24,7 +24,7 @@ source("app/decorate_map.R")
 
 dat <- readRDS("data/wnv.Rds")
 census_tracts <- download_census_tracts()
-wards <- download_ward_map()
+# wards <- download_ward_map()
 wards <- readRDS("data/BoundariesWards.Rds")
 
 ##==============================================================================
@@ -61,89 +61,87 @@ dat[grep("CULEX RESTUANS", species_short), species_short := "res"]
 dat[!species_short %in% c("pip", "res", "mix"), species_short := "OTHER"]
 
 ##==============================================================================
-## BASE  MAP
+## CALCULATE POSSIBLE_DATES FOR UI CONTROLS
 ##==============================================================================
-m <- leaflet() %>%
-    addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution) %>%
-    addPolygons(data=wards, weight=1, fillOpacity=.05, color="black",
-                label=paste0("WARD ", wards$ward), smoothFactor=.02)
 POSSIBLE_DATES <- sort(unique(dat$date))
+get_counts <- function(filterdate){
+    if(length(filterdate) == 0){
+        ret <- filter_data(dat, rev(POSSIBLE_DATES)[1], "sum")
+    } else {
+        ret <- filter_data(dat, filterdate, "sum")
+    }
+    return(ret)
+}
 
-POSSIBLE_DATES
 
+##==============================================================================
+## BASE MAP
+##==============================================================================
+## Originally I planned to make a map "m" and then modify it on the fly within
+## shiny using "generate_map", I ended up not using these functions, but I
+## wanted to keep the syntax for an example.
+
+# m <- leaflet() %>%
+#     addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution) %>%
+#     addPolygons(data=wards, weight=1, fillOpacity=.05, color="black",
+#                 label=paste0("WARD ", wards$ward), smoothFactor=.02)
 # generate_map(m, dat, rev(POSSIBLE_DATES)[1], "sum")
 # generate_map(m, dat, rev(POSSIBLE_DATES)[2], "sum")
 # generate_map(m, dat, rev(POSSIBLE_DATES)[3], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[4], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[5], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[6], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[7], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[8], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[9], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[10], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[11], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[12], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[13], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[14], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[15], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[16], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[17], "sum")
-# generate_map(m, dat, rev(POSSIBLE_DATES)[18], "sum")
 
+##==============================================================================
+## DEFINE UI AND SERVER COMPONENTS
+##==============================================================================
 
-ui <- shinyUI(fluidPage(
-    sidebarPanel(h5("", width=2),
-                 selectInput(inputId="cur_date", label=h4("SLECT DATE"),
-                                    choices = POSSIBLE_DATES),
-                 # checkboxGroupInput(inputId="AppFlag",label=h4("Application"),
-                 #                    choices=setNames(object=c("a","b","c","d"),
-                 #                                     nm=c("a","b","c","d")),
-                 position="left"),
+# https://github.com/SimonGoring/ShinyLeaflet-tutorial/blob/master/Shiny-leaflet-tutorial.Rmd
 
-    #App mainPanel content and styles
-    mainPanel(fluidRow(leafletOutput(outputId="lmap")))
-))
+ui <- fluidPage(
+    fluidRow(column(4, selectInput(inputId = "season_year",
+                                   label = "Season year:",
+                                   choices = sort(unique(year(POSSIBLE_DATES))),
+                                   selected = max(year(POSSIBLE_DATES)) )),
+             column(4, uiOutput("collectionWeekSelect") )),
+    hr(),
+    leafletOutput("MapPlot1", height = 600, width = 800)
+)
 
 #Set up server
 server <- function(input, output){
-    #Build leaflet map
-    lmap <- m
 
-    #Filter data
-    get_counts <- reactive({
-        # filter_data(dat, rev(POSSIBLE_DATES)[1], "sum")
-        if(length(input$cur_date) == 0){
-            ret <- filter_data(dat, rev(POSSIBLE_DATES)[1], "sum")
-        } else {
-            ret <- filter_data(dat, input$cur_date, "sum")
-        }
-        return(ret)
+    output$collectionWeekSelect <- renderUI({
+        selected_year <- input$season_year
+        selectInput(inputId = "collection_week",
+                    label = "Collection date:",
+                    choices = POSSIBLE_DATES[year(POSSIBLE_DATES) == selected_year])
+    })
+
+    output$MapPlot1 <- renderLeaflet({
+        leaflet() %>%
+            addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution) %>%
+            addPolygons(data=wards, weight=1, fillOpacity=.05, color="black",
+                        label=paste0("WARD ", wards$ward), smoothFactor=.02)
+
     })
 
     observe({
-        counts <- get_counts()
-        if(nrow(counts)==0) {
-            print("Nothing selected")
-            leafletProxy("lmap") %>% clearShapes()
-        }
-        else{
-            leafletProxy("lmap", data=counts) %>%
-                clearShapes() %>%
-                addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL*5,
-                           label=~LABEL, fill="blue", col="blue", weight=1,
-                           data=counts[TOTAL_POS!=TOTAL]) %>%
-                addCircles(lng=~longitude, lat=~latitude,  radius=~TOTAL_POS*5,
-                           label=~LABEL, fill="red", col="red",
-                           weight=1, data=counts[TOTAL_POS!=0])
-        }
+        collection_week <- input$collection_week
+
+        counts <- get_counts(collection_week)
+
+        leafletProxy("MapPlot1") %>% clearShapes() %>%
+            addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution) %>%
+            addPolygons(data=wards, weight=1, fillOpacity=.05, color="black",
+                        label=paste0("WARD ", wards$ward), smoothFactor=.02) %>%
+            addCircles(lng=~longitude, lat=~latitude,  radius=~log(counts$TOTAL+1)*200,
+                       fill="blue", col="blue", weight=1, data=counts,
+                       popup = counts$LABEL) %>%
+            addCircles(lng=~longitude, lat=~latitude,  radius=~log(counts$TOTAL_POS)*200,
+                       fill="red", col="red", weight=1, data=counts,
+                       popup = counts$LABEL)
+
     })
-
-
-    output$lmap <- renderLeaflet(lmap)
 }
 
 #Run app
-shinyApp(ui = ui, server = server)
-
-
+shinyApp(ui = ui, server = server, options = list(height = 6000))
 
