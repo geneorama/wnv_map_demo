@@ -30,7 +30,10 @@ plot(dfw)
 # 2. polygons (truncated)
 # 3. the "bounding box" coordinates
 # 4. details about the geometry assumptions (projection method)
+str(dfw)
 str(dfw, 2)
+str(dfw@polygons[[1]])
+str(dfw@data)
 
 ##==============================================================================
 ## ACS DOWNLOAD
@@ -104,3 +107,24 @@ leaflet() %>%
               position = "bottomright",
               title = "Income in DFW")
 
+
+##==============================================================================
+## Merge data in another way
+##==============================================================================
+
+dfw2 <- dfw
+head(dfw2@data)
+head(merge(dfw@data, income_df, "GEOID", sort = FALSE))
+dfw2@data <- merge(dfw@data, income_df, "GEOID", sort = FALSE)
+
+leaflet() %>%
+    addProviderTiles("CartoDB.Positron") %>%
+    addPolygons(data = dfw2,
+                fillColor = ~pal(dfw2@data$hhincome),
+                fillOpacity = 0.7,
+                weight = 0.2,
+                popup = popup) %>%
+    addLegend(pal = pal,
+              values = dfw2@data$hhincome,
+              position = "bottomright",
+              title = "Income in DFW")
