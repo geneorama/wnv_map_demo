@@ -106,6 +106,7 @@ m %>% addTiles(urlTemplate = MAPBOX_STYLE_TEMPLATE, attribution = mb_attribution
 m %>% addProviderTiles("MtbMap") %>%
     addProviderTiles("Stamen.TonerLines", options = providerTileOptions(opacity = 0.35)) %>%
     addProviderTiles("Stamen.TonerLabels")
+m %>% addProviderTiles("Thunderforest.SpinalMap")
 
 ## Create a field called "LABEL" to show the totals for each trap on the map
 counts[,  LABEL := paste(paste0("TRAP: ", TRAP),
