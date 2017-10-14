@@ -18,22 +18,22 @@ api.key.install("60179a2964868d80e37ab0d49e88e654dedf0bc5")
 
 ## Find the codes for Illinois and Cook County
 # 1. Find the code
-# 2. Get the census tract boundary data (put into `dfw`)
+# 2. Get the census tract boundary data (put into `cook`)
 # 3. Simple plot of census tracts
 
 lookup_code(state = "Illinois", county = "Cook")
-dfw <- tracts(state = '17', county = c('031'))
-plot(dfw)
+cook <- tracts(state = '17', county = c('031'))
+plot(cook)
 
 # The census data has the following:
 # 1. summary data / labels
 # 2. polygons (truncated)
 # 3. the "bounding box" coordinates
 # 4. details about the geometry assumptions (projection method)
-str(dfw)
-str(dfw, 2)
-str(dfw@polygons[[1]])
-str(dfw@data)
+str(cook)
+str(cook, 2)
+str(cook@polygons[[1]])
+str(cook@data)
 
 ##==============================================================================
 ## ACS DOWNLOAD
@@ -80,10 +80,10 @@ income_df[is.na(income_df$hhincome),"hhincome"] <- 0
 
 ## Thanks to the `sprintf` statement (earlier) the GEOIDs are in the same
 ## format, and can be merged.
-head(dfw@data$GEOID)
+head(cook@data$GEOID)
 head(income_df$GEOID)
-geneorama::inin(dfw@data$GEOID, income_df$GEOID)
-dfw_merged <- geo_join(dfw, income_df, "GEOID", "GEOID")
+geneorama::inin(cook@data$GEOID, income_df$GEOID)
+cook_merged <- geo_join(cook, income_df, "GEOID", "GEOID")
 
 ##==============================================================================
 ## Plot
@@ -94,37 +94,37 @@ dfw_merged <- geo_join(dfw, income_df, "GEOID", "GEOID")
 ## Plot using leaflet (this example uses the `%>%` data flow paradigm)
 
 pal <- colorQuantile("Greens", NULL, n = 6)
-popup <- paste0("Median household income: ", as.character(dfw_merged$hhincome))
+popup <- paste0("Median household income: ", as.character(cook_merged$hhincome))
 leaflet() %>%
     addProviderTiles("CartoDB.Positron") %>%
-    addPolygons(data = dfw_merged,
-                fillColor = ~pal(dfw_merged$hhincome),
+    addPolygons(data = cook_merged,
+                fillColor = ~pal(cook_merged$hhincome),
                 fillOpacity = 0.7,
                 weight = 0.2,
                 popup = popup) %>%
     addLegend(pal = pal,
-              values = dfw_merged$hhincome,
+              values = cook_merged$hhincome,
               position = "bottomright",
-              title = "Income in DFW")
+              title = "Income in cook")
 
 
 ##==============================================================================
 ## Merge data in another way
 ##==============================================================================
 
-dfw2 <- dfw
-head(dfw2@data)
-head(merge(dfw@data, income_df, "GEOID", sort = FALSE))
-dfw2@data <- merge(dfw@data, income_df, "GEOID", sort = FALSE)
+cook2 <- cook
+head(cook2@data)
+head(merge(cook@data, income_df, "GEOID", sort = FALSE))
+cook2@data <- merge(cook@data, income_df, "GEOID", sort = FALSE)
 
 leaflet() %>%
     addProviderTiles("CartoDB.Positron") %>%
-    addPolygons(data = dfw2,
-                fillColor = ~pal(dfw2@data$hhincome),
+    addPolygons(data = cook2,
+                fillColor = ~pal(cook2@data$hhincome),
                 fillOpacity = 0.7,
                 weight = 0.2,
                 popup = popup) %>%
     addLegend(pal = pal,
-              values = dfw2@data$hhincome,
+              values = cook2@data$hhincome,
               position = "bottomright",
-              title = "Income in DFW")
+              title = "Income in cook")
