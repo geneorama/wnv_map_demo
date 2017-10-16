@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 
 ```{r, echo=FALSE, warning=FALSE, results='hide',message=FALSE}
 ##==============================================================================
@@ -38,7 +43,7 @@ cook <- tracts(state = '17', county = c('031'))
 plot(cook)
 ```
 
-The census data has the following:
+The census tracts map data has the following components:
 
 1. summary data / labels
 2. polygons (truncated)
@@ -47,6 +52,12 @@ The census data has the following:
 
 ```{r}
 str(cook, 2)
+```
+
+Within the actual polygons you have an object called polygon, which contains the point coordinates that define the shape for each of the 1319 cook county census tracts in the file:
+
+```{r}
+str(cook@polygons[[1]])
 ```
 
 
